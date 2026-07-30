@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Security Lock & Settings</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen p-4 pb-12">
+
+    <!-- 1. Password Lock Screen Modal -->
+    <div id="authModal" class="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                🔒
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800">Admin Access</h3>
+                <p class="text-xs text-gray-500 mt-1">Enter PIN to access dashboard</p>
+            </div>
+            <div>
+                <input type="password" id="adminPin" placeholder="Enter PIN (Default: 1234)" 
+                       class="w-full text-center border-2 border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
+                <p id="pinError" class="text-xs text-red-500 font-semibold mt-2 hidden">Incorrect PIN!</p>
+            </div>
+            <button onclick="checkPin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-sm transition-colors">
+                Unlock Dashboard
+            </button>
+            
+            <button onclick="toggleForgotModal(true)" class="text-xs text-emerald-700 underline font-semibold hover:text-emerald-800">
+                Forgot PIN?
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Forgot PIN Modal -->
+    <div id="forgotModal" class="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                🔑
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800">Reset Security PIN</h3>
+                <p class="text-xs text-gray-500 mt-1">Enter Secret Master Key to reset PIN (Default Key: admin123)</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="secretKey" placeholder="Secret Key (admin123)" 
+                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-600">
+                <input type="password" id="resetNewPin" placeholder="Enter New 4-digit PIN" 
+                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-600">
+                <p id="forgotError" class="text-xs text-red-500 font-semibold hidden"></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleForgotModal(false)" class="w-1/2 bg-gray-200 text-gray-700 font-semibold py-2 rounded text-sm">
+                    Cancel
+                </button>
+                <button onclick="resetPinWithKey()" class="w-1/2 bg-amber-600 text-white font-semibold py-2 rounded text-sm">
+                    Reset PIN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Change PIN Settings Modal (From Dashboard) -->
+    <div id="changePinModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
+            <h3 class="text-lg font-bold text-gray-800">Change PIN Code</h3>
+            <div class="space-y-2">
+                <input type="password" id="oldPin" placeholder="Current PIN" 
+                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
+                <input type="password" id="newPin" placeholder="New PIN" 
+                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
+                <p id="changePinError" class="text-xs text-red-500 font-semibold hidden"></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleChangePinModal(false)" class="w-1/2 bg-gray-200 text-gray-700 font-semibold py-2 rounded text-sm">
+                    Cancel
+                </button>
+                <button onclick="saveNewPin()" class="w-1/2 bg-emerald-600 text-white font-semibold py-2 rounded text-sm">
+                    Save PIN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Main Admin Dashboard -->
+    <div id="adminContent" class="max-w-md mx-auto space-y-6 hidden">
+        
+        <!-- Header Controls -->
+        <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+            <h1 class="text-sm font-bold text-gray-700">⚙️ Admin Dashboard</h1>
+            <button onclick="toggleChangePinModal(true)" class="bg-gray-100 hover:bg-gray-200 text-xs px-3 py-1.5 rounded font-semibold text-gray-700 border">
+                🔑 Change PIN
+            </button>
+        </div>
+
+        <!-- Post New Job Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4 text-emerald-700">
+                ➕ Post New Job
+            </h2>
+
+            <form id="jobForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Job Title</label>
+                    <input type="text" id="jobTitle" required placeholder="e.g. Computer Operator - WAPDA" 
+                           class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Category</label>
+                    <select id="jobCategory" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                        <option value="Government">Government</option>
+                        <option value="Private">Private</option>
+                        <option value="Forces">Forces / Police</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Location</label>
+                    <input type="text" id="jobLocation" required placeholder="e.g. Lahore, Punjab" 
+                           class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Job Details / Description</label>
+                    <textarea id="jobDescription" rows="3" required placeholder="Enter eligibility, requirements, last date, etc..." 
+                              class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-sm transition-colors">
+                    Publish Job Listing
+                </button>
+            </form>
+
+            <p id="statusMsg" class="text-xs text-center mt-3 font-semibold hidden"></p>
+        </div>
+
+        <!-- Manage / Delete Jobs Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-bold mb-3 text-red-700">
+                🗑️ Manage / Delete Jobs
+            </h2>
+            <p class="text-xs text-gray-500 mb-4">Click delete next to any job to remove it instantly from the website.</p>
+            
+            <div id="adminJobsList" class="space-y-3">
+                <p class="text-xs text-gray-400 text-center py-2">Loading jobs list...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        // Local Storage se saved PIN load karein (Ya default 1234 rakhein)
+        let currentPin = localStorage.getItem('adminPin') || "1234";
+        const MASTER_KEY = "admin123"; // Reset karne ke liye Secret Recovery Key
+
+        // 1. Auth & Lock Logic
+        window.checkPin = function() {
+            const inputPin = document.getElementById('adminPin').value;
+            const errorMsg = document.getElementById('pinError');
+            
+            if (inputPin === currentPin) {
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+            } else {
+                errorMsg.innerText = "Incorrect PIN!";
+                errorMsg.classList.remove('hidden');
+            }
+        };
+
+        // 2. Change PIN Logic
+        window.toggleChangePinModal = function(show) {
+            const modal = document.getElementById('changePinModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        };
+
+        window.saveNewPin = function() {
+            const oldPinInput = document.getElementById('oldPin').value;
+            const newPinInput = document.getElementById('newPin').value;
+            const err = document.getElementById('changePinError');
+
+            if (oldPinInput !== currentPin) {
+                err.innerText = "Current PIN is wrong!";
+                err.classList.remove('hidden');
+                return;
+            }
+            if (!newPinInput || newPinInput.length < 4) {
+                err.innerText = "New PIN must be at least 4 digits!";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            currentPin = newPinInput;
+            localStorage.setItem('adminPin', newPinInput);
+            alert("PIN changed successfully!");
+            toggleChangePinModal(false);
+            document.getElementById('oldPin').value = '';
+            document.getElementById('newPin').value = '';
+        };
+
+        // 3. Forgot PIN Logic
+        window.toggleForgotModal = function(show) {
+            const modal = document.getElementById('forgotModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        };
+
+        window.resetPinWithKey = function() {
+            const keyInput = document.getElementById('secretKey').value;
+            const newPinInput = document.getElementById('resetNewPin').value;
+            const err = document.getElementById('forgotError');
+
+            if (keyInput !== MASTER_KEY) {
+                err.innerText = "Invalid Master Key!";
+                err.classList.remove('hidden');
+                return;
+            }
+            if (!newPinInput || newPinInput.length < 4) {
+                err.innerText = "New PIN must be at least 4 digits!";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            currentPin = newPinInput;
+            localStorage.setItem('adminPin', newPinInput);
+            alert("PIN reset successful! You can now login with your new PIN.");
+            toggleForgotModal(false);
+            document.getElementById('adminPin').value = newPinInput;
+        };
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AiZaSyDNuCCC577Pul4Gvn3_fX1m23-9tSmsWSo",
+            authDomain: "pakjobsalert-fae89.firebaseapp.com",
+            projectId: "pakjobsalert-fae89",
+            storageBucket: "pakjobsalert-fae89.firebasestorage.app",
+            messagingSenderId: "935845790400",
+            appId: "1:935845790400:web:98d35b91b94eaeb01ff1a9",
+            measurementId: "G-E5C7E37QX2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Post Job Logic
+        document.getElementById('jobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const statusMsg = document.getElementById('statusMsg');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Publishing...";
+
+            const newJob = {
+                title: document.getElementById('jobTitle').value,
+                category: document.getElementById('jobCategory').value,
+                location: document.getElementById('jobLocation').value,
+                description: document.getElementById('jobDescription').value,
+                timestamp: Date.now()
+            };
+
+            const jobsRef = ref(database, 'jobs');
+            push(jobsRef, newJob)
+                .then(() => {
+                    statusMsg.className = "text-xs text-center mt-3 font-semibold text-emerald-600";
+                    statusMsg.innerText = "Job successfully published!";
+                    statusMsg.classList.remove('hidden');
+                    document.getElementById('jobForm').reset();
+                })
+                .catch((error) => {
+                    statusMsg.className = "text-xs text-center mt-3 font-semibold text-red-600";
+                    statusMsg.innerText = "Error: " + error.message;
+                    statusMsg.classList.remove('hidden');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Publish Job Listing";
+                });
+        });
+
+        // Load & Delete Jobs
+        const jobsRef = ref(database, 'jobs');
+        onValue(jobsRef, (snapshot) => {
+            const container = document.getElementById('adminJobsList');
+            container.innerHTML = '';
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                let jobsArray = [];
+                Object.keys(data).forEach(key => {
+                    jobsArray.push({ id: key, ...data[key] });
+                });
+                
+                jobsArray.sort((a, b) => b.timestamp - a.timestamp);
+
+                jobsArray.forEach(job => {
+                    const item = document.createElement('div');
+                    item.className = "flex justify-between items-center bg-gray-50 border p-3 rounded text-sm";
+                    item.innerHTML = `
+                        <div class="pr-2 truncate">
+                            <h4 class="font-bold text-gray-800 text-xs truncate">${job.title}</h4>
+                            <p class="text-[10px] text-gray-500">${job.location} | <span class="text-emerald-600">${job.category}</span></p>
+                        </div>
+                        <button onclick="deleteJob('${job.id}')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 rounded font-semibold transition-colors shrink-0">
+                            Delete
+                        </button>
+                    `;
+                    container.appendChild(item);
+                });
+            } else {
+                container.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">No jobs available to manage.</p>';
+            }
+        });
+
+        // Delete Function
+        window.deleteJob = function(jobId) {
+            if (confirm("Are you sure you want to delete this job?")) {
+                const jobRef = ref(database, 'jobs/' + jobId);
+                remove(jobRef).catch((error) => {
+                    alert("Failed to delete: " + error.message);
+                });
+            }
+        };
+    </script>
+</body>
+                                                                                </html>
+      
