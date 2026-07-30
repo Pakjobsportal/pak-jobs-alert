@@ -84,7 +84,7 @@
         </div>
     </div>
 
-    <!-- 4. Edit Job Modal (NEW FEATURE) -->
+    <!-- 4. Edit / Rename Job Modal -->
     <div id="editJobModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h3 class="text-lg font-bold text-gray-800 border-b pb-2">✏️ Edit / Rename Job</h3>
@@ -107,8 +107,8 @@
                     <input type="text" id="editJobLocation" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Apply Link / Contact</label>
-                    <input type="text" id="editJobApplyLink" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Apply Link / Phone Number / WhatsApp</label>
+                    <input type="text" id="editJobApplyLink" placeholder="e.g. 03001234567 ya Link" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold mb-1 text-gray-600">Job Details / Description</label>
@@ -162,8 +162,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Apply Link / Contact (Website Link, Email, or WhatsApp)</label>
-                    <input type="text" id="jobApplyLink" placeholder="e.g. https://nts.org.pk ya hr@jobs.com" 
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Apply Link / Phone / WhatsApp Contact</label>
+                    <input type="text" id="jobApplyLink" placeholder="e.g. 03001234567, WhatsApp Link ya Website" 
                            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
                 </div>
 
@@ -186,7 +186,7 @@
             <h2 class="text-lg font-bold mb-3 text-emerald-700">
                 🛠️ Manage / Edit / Delete Jobs
             </h2>
-            <p class="text-xs text-gray-500 mb-4">Click edit to change title/details or delete to remove.</p>
+            <p class="text-xs text-gray-500 mb-4">Click edit to rename/change details or delete to remove.</p>
             
             <div id="adminJobsList" class="space-y-3">
                 <p class="text-xs text-gray-400 text-center py-2">Loading jobs list...</p>
@@ -388,4 +388,38 @@
         };
 
         // Save Edited Job (Rename/Update)
-        document
+        document.getElementById('editJobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editJobId').value;
+
+            const updatedJobData = {
+                title: document.getElementById('editJobTitle').value,
+                category: document.getElementById('editJobCategory').value,
+                location: document.getElementById('editJobLocation').value,
+                applyLink: document.getElementById('editJobApplyLink').value,
+                description: document.getElementById('editJobDescription').value
+            };
+
+            const jobRef = ref(database, 'jobs/' + id);
+            update(jobRef, updatedJobData)
+                .then(() => {
+                    alert("Job updated successfully!");
+                    toggleEditModal(false);
+                })
+                .catch((err) => {
+                    alert("Update failed: " + err.message);
+                });
+        });
+
+        // Delete Function
+        window.deleteJob = function(jobId) {
+            if (confirm("Are you sure you want to delete this job?")) {
+                const jobRef = ref(database, 'jobs/' + jobId);
+                remove(jobRef).catch((error) => {
+                    alert("Failed to delete: " + error.message);
+                });
+            }
+        };
+    </script>
+</body>
+</html>
