@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PakJobs Alert - Latest Government & Private Jobs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+
+    <!-- Header Section -->
+    <header class="bg-emerald-700 text-white p-6 shadow-lg text-center">
+        <h1 class="text-2xl font-bold flex items-center justify-center gap-2">
+            🇵🇰 PakJobs Alert
+        </h1>
+        <p class="text-xs text-emerald-100 mt-1">Govt, Private & Forces Jobs Updates in Pakistan</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md mx-auto p-4 space-y-4">
+
+        <!-- Search Bar -->
+        <div>
+            <input type="text" id="searchInput" placeholder="Search job title, department, or city..." 
+                   class="w-full p-3 border-2 border-emerald-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+        </div>
+
+        <!-- Category Filters -->
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-semibold">
+            <button onclick="filterJobs('All')" class="category-btn bg-emerald-700 text-white px-4 py-2 rounded-full whitespace-nowrap shadow-sm">All Jobs</button>
+            <button onclick="filterJobs('Government')" class="category-btn bg-white text-gray-700 border px-4 py-2 rounded-full whitespace-nowrap shadow-sm">Govt Jobs</button>
+            <button onclick="filterJobs('Private')" class="category-btn bg-white text-gray-700 border px-4 py-2 rounded-full whitespace-nowrap shadow-sm">Private</button>
+            <button onclick="filterJobs('Forces')" class="category-btn bg-white text-gray-700 border px-4 py-2 rounded-full whitespace-nowrap shadow-sm">Forces / Police</button>
+        </div>
+
+        <!-- Dynamic Jobs Container -->
+        <div id="jobsContainer" class="space-y-3">
+            <p id="loadingMsg" class="text-center text-gray-500 py-6 text-sm">Loading latest jobs...</p>
+        </div>
+
+    </main>
+
+    <!-- Job Details Modal -->
+    <div id="jobModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full space-y-4 shadow-xl relative">
+            <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
+            <h3 id="modalTitle" class="text-lg font-bold text-emerald-700"></h3>
+            <p id="modalCategory" class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded inline-block font-semibold"></p>
+            <p id="modalLocation" class="text-xs text-gray-600 flex items-center gap-1"><i class="fa-solid fa-location-dot text-red-500"></i> <span></span></p>
+            <hr>
+            <p id="modalDescription" class="text-sm text-gray-700 whitespace-pre-line"></p>
+            <button onclick="closeModal()" class="w-full bg-emerald-600 text-white py-2 rounded font-semibold text-sm">Close</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AiZaSyDNuCCC577Pul4Gvn3_fX1m23-9tSmsWSo",
+            authDomain: "pakjobsalert-fae89.firebaseapp.com",
+            projectId: "pakjobsalert-fae89",
+            storageBucket: "pakjobsalert-fae89.firebasestorage.app",
+            messagingSenderId: "935845790400",
+            appId: "1:935845790400:web:98d35b91b94eaeb01ff1a9",
+            measurementId: "G-E5C7E37QX2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let allJobs = [];
+        let currentCategory = 'All';
+
+        // Fetch Real-time Data
+        const jobsRef = ref(database, 'jobs');
+        onValue(jobsRef, (snapshot) => {
+            const container = document.getElementById('jobsContainer');
+            container.innerHTML = '';
+            allJobs = [];
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                Object.keys(data).forEach(key => {
+                    allJobs.push({ id: key, ...data[key] });
+                });
+                // Sort latest first
+                allJobs.sort((a, b) => b.timestamp - a.timestamp);
+                renderJobs();
+            } else {
+                container.innerHTML = '<p class="text-center text-gray-500 py-6 text-sm">No jobs posted yet.</p>';
+            }
+        });
+
+        // Render Jobs
+        window.renderJobs = function() {
+            const container = document.getElementById('jobsContainer');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            container.innerHTML = '';
+
+            const filtered = allJobs.filter(job => {
+                const matchesCat = currentCategory === 'All' || job.category === currentCategory;
+                const matchesSearch = job.title.toLowerCase().includes(searchVal) || 
+                                      job.location.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-6 text-sm">No jobs found.</p>';
+                return;
+            }
+
+            filtered.forEach(job => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-lg shadow border-l-4 border-emerald-600 flex justify-between items-center";
+                card.innerHTML = `
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-gray-800 text-sm">${job.title}</h3>
+                        <p class="text-xs text-gray-500 flex items-center gap-1">
+                            <i class="fa-solid fa-location-dot text-emerald-600"></i> ${job.location}
+                        </p>
+                        <span class="inline-block text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-semibold">${job.category}</span>
+                    </div>
+                    <button onclick="openModal('${job.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded font-semibold transition-colors">
+                        Details
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        // Filter Function
+        window.filterJobs = function(category) {
+            currentCategory = category;
+            renderJobs();
+        };
+
+        // Modal Functions
+        window.openModal = function(id) {
+            const job = allJobs.find(j => j.id === id);
+            if (!job) return;
+
+            document.getElementById('modalTitle').innerText = job.title;
+            document.getElementById('modalCategory').innerText = job.category;
+            document.getElementById('modalLocation').querySelector('span').innerText = job.location;
+            document.getElementById('modalDescription').innerText = job.description;
+
+            document.getElementById('jobModal').classList.remove('hidden');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('jobModal').classList.add('hidden');
+        };
+
+        // Search Listener
+        document.getElementById('searchInput').addEventListener('input', renderJobs);
+    </script>
+</body>
+  </html>
+  
