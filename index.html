@@ -111,8 +111,9 @@
             </div>
             
             <div class="space-y-1.5">
-                <h4 class="text-xs font-bold text-slate-900">Job Description & Details:</h4>
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 text-xs text-slate-700 whitespace-pre-wrap leading-relaxed font-normal" id="modalDescription"></div>
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Job Description & Details:</h4>
+                <!-- Auto Formatting Added to Description Container -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 text-xs sm:text-sm text-slate-800 whitespace-pre-wrap leading-relaxed font-normal" id="modalDescription"></div>
             </div>
 
             <div id="modalApplyContainer" class="pt-1"></div>
@@ -238,7 +239,15 @@
             document.getElementById('modalTitle').innerText = job.title;
             document.getElementById('modalCategory').innerText = job.category;
             document.getElementById('modalLocation').innerHTML = `<span>${job.location}</span>`;
-            document.getElementById('modalDescription').innerText = job.description;
+            
+            // Modern Auto Bold Formatting Logic
+            let formattedDesc = job.description
+                // Auto bold text inside ** **
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-slate-900">$1</strong>')
+                // Auto bold headings ending with colon (e.g. QUALIFICATION: or JOB REQUIREMENTS:)
+                .replace(/^([^:\n]+:)/gm, '<strong class="font-extrabold text-slate-900 text-xs sm:text-sm tracking-wide">$1</strong>');
+
+            document.getElementById('modalDescription').innerHTML = formattedDesc;
 
             const applyContainer = document.getElementById('modalApplyContainer');
             applyContainer.innerHTML = '';
@@ -273,5 +282,5 @@
         };
     </script>
 </body>
-</html>
-
+                </html>
+                
