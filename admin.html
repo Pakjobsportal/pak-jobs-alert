@@ -133,27 +133,27 @@
             </button>
         </div>
 
-        <!-- Website Advertisement Settings Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 border-2 border-emerald-500/30">
-            <h2 class="text-lg font-bold mb-2 text-emerald-700">
+        <!-- Ad Management Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-2 border-amber-400">
+            <h2 class="text-lg font-bold mb-2 text-amber-600">
                 📢 Website Advertisement Settings
             </h2>
-            <p class="text-xs text-gray-500 mb-4">A-ADS code yahan paste karein taake website par ads show hoon.</p>
+            <p class="text-xs text-gray-500 mb-4">Paste your Ad HTML code here. The first ad will show at the top, and subsequent ads will appear after every 3-4 posts.</p>
             
-            <div class="space-y-3">
+            <form id="adForm" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Top Ad Code (Ad 1)</label>
-                    <textarea id="adCode1" rows="3" placeholder="Paste A-ADS code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono"></textarea>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Ad Code 1 (Top Banner)</label>
+                    <textarea id="adCode1" rows="3" placeholder="Paste HTML/JS ad code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Middle Ad Code (Ad 2 - Between Posts)</label>
-                    <textarea id="adCode2" rows="3" placeholder="Paste A-ADS code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono"></textarea>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Ad Code 2 (After 3-4 Posts)</label>
+                    <textarea id="adCode2" rows="3" placeholder="Paste HTML/JS ad code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
                 </div>
-                <button onclick="saveAdsConfig()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2 rounded text-xs transition-colors">
-                    💾 Save Ad Settings
+                <button type="submit" id="saveAdsBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 rounded text-sm transition-colors">
+                    Save Ad Settings
                 </button>
-                <p id="adStatusMsg" class="text-xs text-center font-semibold hidden"></p>
-            </div>
+            </form>
+            <p id="adStatusMsg" class="text-xs text-center mt-2 font-semibold hidden"></p>
         </div>
 
         <!-- Post New Job Card -->
@@ -312,35 +312,36 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Load Existing Ads Configuration
+        // Save Ads Settings
+        document.getElementById('adForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const adStatusMsg = document.getElementById('adStatusMsg');
+            const ad1 = document.getElementById('adCode1').value;
+            const ad2 = document.getElementById('adCode2').value;
+
+            const adsRef = ref(database, 'settings/ads');
+            set(adsRef, { ad1: ad1, ad2: ad2 })
+                .then(() => {
+                    adStatusMsg.className = "text-xs text-center mt-2 font-semibold text-amber-600";
+                    adStatusMsg.innerText = "Ads settings saved successfully!";
+                    adStatusMsg.classList.remove('hidden');
+                })
+                .catch((error) => {
+                    adStatusMsg.className = "text-xs text-center mt-2 font-semibold text-red-600";
+                    adStatusMsg.innerText = "Error: " + error.message;
+                    adStatusMsg.classList.remove('hidden');
+                });
+        });
+
+        // Load existing Ads into inputs
         const adsRef = ref(database, 'settings/ads');
         onValue(adsRef, (snapshot) => {
             if (snapshot.exists()) {
                 const ads = snapshot.val();
-                document.getElementById('adCode1').value = ads.ad1 || '';
-                document.getElementById('adCode2').value = ads.ad2 || '';
+                if(ads.ad1) document.getElementById('adCode1').value = ads.ad1;
+                if(ads.ad2) document.getElementById('adCode2').value = ads.ad2;
             }
         });
-
-        // Save Ads Configuration
-        window.saveAdsConfig = function() {
-            const ad1 = document.getElementById('adCode1').value;
-            const ad2 = document.getElementById('adCode2').value;
-            const msg = document.getElementById('adStatusMsg');
-
-            set(ref(database, 'settings/ads'), { ad1, ad2 })
-                .then(() => {
-                    msg.className = "text-xs text-center font-semibold text-emerald-600 mt-2";
-                    msg.innerText = "Ad settings saved successfully!";
-                    msg.classList.remove('hidden');
-                    setTimeout(() => msg.classList.add('hidden'), 3000);
-                })
-                .catch((error) => {
-                    msg.className = "text-xs text-center font-semibold text-red-600 mt-2";
-                    msg.innerText = "Error: " + error.message;
-                    msg.classList.remove('hidden');
-                });
-        };
 
         // Post Job
         document.getElementById('jobForm').addEventListener('submit', function(e) {
@@ -374,12 +375,4 @@
                     statusMsg.innerText = "Error: " + error.message;
                     statusMsg.classList.remove('hidden');
                 })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Publish Job Listing";
-                });
-        });
-
-        // Load Jobs
-        const jobsRef = ref(database, 'jobs');
-        onValue(jobsRef, (snapshot)
+                .fin
