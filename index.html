@@ -60,6 +60,9 @@
             <div class="absolute -left-6 -top-6 w-24 h-24 rounded-full bg-teal-400/20 blur-xl pointer-events-none"></div>
         </div>
 
+        <!-- Top Ad Container (Loaded from Firebase) -->
+        <div id="topAdContainer" class="w-full"></div>
+
         <!-- Search & Filter Bar -->
         <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
             <div class="relative">
@@ -152,8 +155,24 @@
         const database = getDatabase(app);
 
         let allJobs = [];
+        let globalAds = { ad1: '', ad2: '' };
         let selectedCategory = 'All';
 
+        // Load Ads from Firebase
+        const adsRef = ref(database, 'settings/ads');
+        onValue(adsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                globalAds = snapshot.val();
+                if (globalAds.ad1) {
+                    document.getElementById('topAdContainer').innerHTML = `<div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">${globalAds.ad1}</div>`;
+                } else {
+                    document.getElementById('topAdContainer').innerHTML = '';
+                }
+            }
+            renderJobs();
+        });
+
+        // Load Jobs from Firebase
         const jobsRef = ref(database, 'jobs');
         onValue(jobsRef, (snapshot) => {
             const container = document.getElementById('jobsList');
@@ -202,7 +221,7 @@
                 return;
             }
 
-            filtered.forEach(job => {
+            filtered.forEach((job, index) => {
                 const card = document.createElement('div');
                 card.className = "bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex justify-between items-center group cursor-pointer";
                 card.onclick = () => openModal(job.id);
@@ -224,6 +243,14 @@
                     </button>
                 `;
                 container.appendChild(card);
+
+                // Insert Ad 2 after 3 posts (index 2)
+                if (index === 2 && globalAds.ad2 && globalAds.ad2.trim() !== '') {
+                    const adCard = document.createElement('div');
+                    adCard.className = "bg-white p-2 rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden my-3";
+                    adCard.innerHTML = globalAds.ad2;
+                    container.appendChild(adCard);
+                }
             });
         }
 
@@ -284,3 +311,4 @@
     </script>
 </body>
 </html>
+
