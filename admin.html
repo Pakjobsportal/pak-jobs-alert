@@ -133,6 +133,29 @@
             </button>
         </div>
 
+        <!-- Ad Management Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-2 border-amber-400">
+            <h2 class="text-lg font-bold mb-2 text-amber-600">
+                📢 Website Advertisement Settings
+            </h2>
+            <p class="text-xs text-gray-500 mb-4">Paste your Ad HTML code here. The first ad will show at the top, and subsequent ads will appear after every 3-4 posts.</p>
+            
+            <form id="adForm" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Ad Code 1 (Top Banner)</label>
+                    <textarea id="adCode1" rows="3" placeholder="Paste HTML/JS ad code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Ad Code 2 (After 3-4 Posts)</label>
+                    <textarea id="adCode2" rows="3" placeholder="Paste HTML/JS ad code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                </div>
+                <button type="submit" id="saveAdsBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 rounded text-sm transition-colors">
+                    Save Ad Settings
+                </button>
+            </form>
+            <p id="adStatusMsg" class="text-xs text-center mt-2 font-semibold hidden"></p>
+        </div>
+
         <!-- Post New Job Card -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-bold mb-4 text-emerald-700">
@@ -198,7 +221,7 @@
     <!-- Firebase SDK Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
         let currentPin = localStorage.getItem('adminPin') || "1234";
         const MASTER_KEY = "admin123";
@@ -289,6 +312,37 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
+        // Save Ads Settings
+        document.getElementById('adForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const adStatusMsg = document.getElementById('adStatusMsg');
+            const ad1 = document.getElementById('adCode1').value;
+            const ad2 = document.getElementById('adCode2').value;
+
+            const adsRef = ref(database, 'settings/ads');
+            set(adsRef, { ad1: ad1, ad2: ad2 })
+                .then(() => {
+                    adStatusMsg.className = "text-xs text-center mt-2 font-semibold text-amber-600";
+                    adStatusMsg.innerText = "Ads settings saved successfully!";
+                    adStatusMsg.classList.remove('hidden');
+                })
+                .catch((error) => {
+                    adStatusMsg.className = "text-xs text-center mt-2 font-semibold text-red-600";
+                    adStatusMsg.innerText = "Error: " + error.message;
+                    adStatusMsg.classList.remove('hidden');
+                });
+        });
+
+        // Load existing Ads into inputs
+        const adsRef = ref(database, 'settings/ads');
+        onValue(adsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const ads = snapshot.val();
+                if(ads.ad1) document.getElementById('adCode1').value = ads.ad1;
+                if(ads.ad2) document.getElementById('adCode2').value = ads.ad2;
+            }
+        });
+
         // Post Job
         document.getElementById('jobForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -321,105 +375,4 @@
                     statusMsg.innerText = "Error: " + error.message;
                     statusMsg.classList.remove('hidden');
                 })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Publish Job Listing";
-                });
-        });
-
-        // Load Jobs
-        const jobsRef = ref(database, 'jobs');
-        onValue(jobsRef, (snapshot) => {
-            const container = document.getElementById('adminJobsList');
-            container.innerHTML = '';
-
-            if (snapshot.exists()) {
-                globalJobs = snapshot.val();
-                let jobsArray = [];
-                Object.keys(globalJobs).forEach(key => {
-                    jobsArray.push({ id: key, ...globalJobs[key] });
-                });
-                
-                jobsArray.sort((a, b) => b.timestamp - a.timestamp);
-
-                jobsArray.forEach(job => {
-                    const item = document.createElement('div');
-                    item.className = "flex justify-between items-center bg-gray-50 border p-3 rounded text-sm";
-                    item.innerHTML = `
-                        <div class="pr-2 truncate">
-                            <h4 class="font-bold text-gray-800 text-xs truncate">${job.title}</h4>
-                            <p class="text-[10px] text-gray-500">${job.location} | <span class="text-emerald-600">${job.category}</span></p>
-                        </div>
-                        <div class="flex gap-1 shrink-0">
-                            <button onclick="openEditModal('${job.id}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2.5 py-1 rounded font-semibold transition-colors">
-                                Edit
-                            </button>
-                            <button onclick="deleteJob('${job.id}')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 rounded font-semibold transition-colors">
-                                Delete
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(item);
-                });
-            } else {
-                container.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">No jobs available to manage.</p>';
-            }
-        });
-
-        // Edit Modal Controls
-        window.toggleEditModal = function(show) {
-            const modal = document.getElementById('editJobModal');
-            if (show) modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
-        };
-
-        window.openEditModal = function(id) {
-            const job = globalJobs[id];
-            if (!job) return;
-
-            document.getElementById('editJobId').value = id;
-            document.getElementById('editJobTitle').value = job.title;
-            document.getElementById('editJobCategory').value = job.category;
-            document.getElementById('editJobLocation').value = job.location;
-            document.getElementById('editJobApplyLink').value = job.applyLink || '';
-            document.getElementById('editJobDescription').value = job.description;
-
-            toggleEditModal(true);
-        };
-
-        // Save Edited Job (Rename/Update)
-        document.getElementById('editJobForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editJobId').value;
-
-            const updatedJobData = {
-                title: document.getElementById('editJobTitle').value,
-                category: document.getElementById('editJobCategory').value,
-                location: document.getElementById('editJobLocation').value,
-                applyLink: document.getElementById('editJobApplyLink').value,
-                description: document.getElementById('editJobDescription').value
-            };
-
-            const jobRef = ref(database, 'jobs/' + id);
-            update(jobRef, updatedJobData)
-                .then(() => {
-                    alert("Job updated successfully!");
-                    toggleEditModal(false);
-                })
-                .catch((err) => {
-                    alert("Update failed: " + err.message);
-                });
-        });
-
-        // Delete Function
-        window.deleteJob = function(jobId) {
-            if (confirm("Are you sure you want to delete this job?")) {
-                const jobRef = ref(database, 'jobs/' + jobId);
-                remove(jobRef).catch((error) => {
-                    alert("Failed to delete: " + error.message);
-                });
-            }
-        };
-    </script>
-</body>
-</html>
+                .fin
