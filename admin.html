@@ -127,9 +127,8 @@
 
     </div>
 
-    <!-- JavaScript Logic using Compat SDK -->
+    <!-- JavaScript Logic -->
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AiZaSyDNuCCC577Pul4Gvn3_fX1m23-9tSmsWSo",
             authDomain: "pakjobsalert-fae89.firebaseapp.com",
@@ -142,10 +141,8 @@
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
         let currentPin = localStorage.getItem('adminPin') || "1234";
 
-        // Check PIN Function
         function checkPin() {
             const inputPin = document.getElementById('adminPin').value;
             const errorMsg = document.getElementById('pinError');
@@ -161,7 +158,6 @@
             }
         }
 
-        // Load Ads Configuration
         function loadAds() {
             database.ref('settings/ads').once('value', (snapshot) => {
                 if (snapshot.exists()) {
@@ -172,7 +168,6 @@
             });
         }
 
-        // Save Ads Configuration
         function saveAdsConfig() {
             const ad1 = document.getElementById('adCode1').value;
             const ad2 = document.getElementById('adCode2').value;
@@ -192,10 +187,8 @@
                 });
         }
 
-        // Post Job Form Handler
         document.getElementById('jobForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
             const submitBtn = document.getElementById('submitBtn');
             const statusMsg = document.getElementById('statusMsg');
             
@@ -220,7 +213,7 @@
                     setTimeout(() => statusMsg.classList.add('hidden'), 3000);
                 })
                 .catch((error) => {
-                    statusMsg.className = "text-xs text-center mt-3 font-364 text-red-600";
+                    statusMsg.className = "text-xs text-center mt-3 font-semibold text-red-600";
                     statusMsg.innerText = "Error: " + error.message;
                     statusMsg.classList.remove('hidden');
                 })
@@ -230,7 +223,6 @@
                 });
         });
 
-        // Load Jobs List for Admin Management
         function loadJobs() {
             database.ref('jobs').on('value', (snapshot) => {
                 const container = document.getElementById('adminJobsList');
@@ -244,7 +236,6 @@
                     
                     jobsArray.sort((a, b) => b.timestamp - a.timestamp);
 
-                    jobsArray.zip = function() {};
                     jobsArray.forEach(job => {
                         const item = document.createElement('div');
                         item.className = "flex justify-between items-center bg-gray-50 border p-3 rounded text-sm";
@@ -265,7 +256,6 @@
             });
         }
 
-        // Delete Job Function
         function deleteJob(id) {
             if (confirm("Are you sure you want to delete this job?")) {
                 database.ref('jobs/' + id).remove();
