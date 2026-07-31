@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Security Lock & Settings</title>
+    <title>Admin Panel - Pak Jobs Alert</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen p-4 pb-12">
 
@@ -27,133 +30,41 @@
             <button onclick="checkPin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded text-sm transition-colors">
                 Unlock Dashboard
             </button>
-            
-            <button onclick="toggleForgotModal(true)" class="text-xs text-emerald-700 underline font-semibold hover:text-emerald-800">
-                Forgot PIN?
-            </button>
         </div>
     </div>
 
-    <!-- 2. Forgot PIN Modal -->
-    <div id="forgotModal" class="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-lg p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
-                🔑
-            </div>
-            <div>
-                <h3 class="text-lg font-bold text-gray-800">Reset Security PIN</h3>
-                <p class="text-xs text-gray-500 mt-1">Enter Secret Master Key to reset PIN (Default Key: admin123)</p>
-            </div>
-            <div class="space-y-2">
-                <input type="password" id="secretKey" placeholder="Secret Key (admin123)" 
-                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-600">
-                <input type="password" id="resetNewPin" placeholder="Enter New 4-digit PIN" 
-                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-600">
-                <p id="forgotError" class="text-xs text-red-500 font-semibold hidden"></p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="toggleForgotModal(false)" class="w-1/2 bg-gray-200 text-gray-700 font-semibold py-2 rounded text-sm">
-                    Cancel
-                </button>
-                <button onclick="resetPinWithKey()" class="w-1/2 bg-amber-600 text-white font-semibold py-2 rounded text-sm">
-                    Reset PIN
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. Change PIN Settings Modal -->
-    <div id="changePinModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-lg p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
-            <h3 class="text-lg font-bold text-gray-800">Change PIN Code</h3>
-            <div class="space-y-2">
-                <input type="password" id="oldPin" placeholder="Current PIN" 
-                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
-                <input type="password" id="newPin" placeholder="New PIN" 
-                       class="w-full text-center border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
-                <p id="changePinError" class="text-xs text-red-500 font-semibold hidden"></p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="toggleChangePinModal(false)" class="w-1/2 bg-gray-200 text-gray-700 font-semibold py-2 rounded text-sm">
-                    Cancel
-                </button>
-                <button onclick="saveNewPin()" class="w-1/2 bg-emerald-600 text-white font-semibold py-2 rounded text-sm">
-                    Save PIN
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. Edit / Rename Job Modal -->
-    <div id="editJobModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">✏️ Edit / Rename Job</h3>
-            <form id="editJobForm" class="space-y-3">
-                <input type="hidden" id="editJobId">
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Job Title</label>
-                    <input type="text" id="editJobTitle" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Category</label>
-                    <select id="editJobCategory" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                        <option value="Government">Government</option>
-                        <option value="Private">Private</option>
-                        <option value="Forces">Forces / Police</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Location</label>
-                    <input type="text" id="editJobLocation" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Apply Link / Phone Number / WhatsApp</label>
-                    <input type="text" id="editJobApplyLink" placeholder="e.g. 03001234567 ya Link" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Job Details / Description</label>
-                    <textarea id="editJobDescription" rows="5" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm"></textarea>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="toggleEditModal(false)" class="w-1/2 bg-gray-200 text-gray-700 font-semibold py-2 rounded text-sm">Cancel</button>
-                    <button type="submit" class="w-1/2 bg-emerald-600 text-white font-semibold py-2 rounded text-sm">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 5. Main Admin Dashboard -->
+    <!-- 2. Main Admin Dashboard -->
     <div id="adminContent" class="max-w-md mx-auto space-y-6 hidden">
         
         <!-- Header Controls -->
         <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
             <h1 class="text-sm font-bold text-gray-700">⚙️ Admin Dashboard</h1>
-            <button onclick="toggleChangePinModal(true)" class="bg-gray-100 hover:bg-gray-200 text-xs px-3 py-1.5 rounded font-semibold text-gray-700 border">
-                🔑 Change PIN
-            </button>
+            <a href="index.html" target="_blank" class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1.5 rounded font-semibold border border-emerald-200">
+                🌐 View Website
+            </a>
         </div>
 
-        <!-- Ad Management Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 border-2 border-amber-400">
-            <h2 class="text-lg font-bold mb-2 text-amber-600">
+        <!-- Website Advertisement Settings Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-2 border-emerald-500/30">
+            <h2 class="text-lg font-bold mb-2 text-emerald-700">
                 📢 Website Advertisement Settings
             </h2>
-            <p class="text-xs text-gray-500 mb-4">Paste your Ad HTML code here. The first ad will show at the top, and subsequent ads will appear after every 3-4 posts.</p>
+            <p class="text-xs text-gray-500 mb-4">A-ADS code yahan paste karein taake website par ads show hoon.</p>
             
-            <form id="adForm" class="space-y-3">
+            <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Ad Code 1 (Top Banner)</label>
-                    <textarea id="adCode1" rows="3" placeholder="Paste HTML/JS ad code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Top Ad Code (Ad 1)</label>
+                    <textarea id="adCode1" rows="3" placeholder="Paste A-ADS code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-600">Ad Code 2 (After 3-4 Posts)</label>
-                    <textarea id="adCode2" rows="3" placeholder="Paste HTML/JS ad code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    <label class="block text-xs font-semibold mb-1 text-gray-600">Middle Ad Code (Ad 2 - Between Posts)</label>
+                    <textarea id="adCode2" rows="3" placeholder="Paste A-ADS code here..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs font-mono"></textarea>
                 </div>
-                <button type="submit" id="saveAdsBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 rounded text-sm transition-colors">
-                    Save Ad Settings
+                <button onclick="saveAdsConfig()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2 rounded text-xs transition-colors">
+                    💾 Save Ad Settings
                 </button>
-            </form>
-            <p id="adStatusMsg" class="text-xs text-center mt-2 font-semibold hidden"></p>
+                <p id="adStatusMsg" class="text-xs text-center font-semibold hidden"></p>
+            </div>
         </div>
 
         <!-- Post New Job Card -->
@@ -204,13 +115,11 @@
             <p id="statusMsg" class="text-xs text-center mt-3 font-semibold hidden"></p>
         </div>
 
-        <!-- Manage / Delete / Edit Jobs Card -->
+        <!-- Manage / Delete Jobs Card -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-lg font-bold mb-3 text-emerald-700">
-                🛠️ Manage / Edit / Delete Jobs
+                🛠️ Manage & Delete Jobs
             </h2>
-            <p class="text-xs text-gray-500 mb-4">Click edit to rename/change details or delete to remove.</p>
-            
             <div id="adminJobsList" class="space-y-3">
                 <p class="text-xs text-gray-400 text-center py-2">Loading jobs list...</p>
             </div>
@@ -218,87 +127,9 @@
 
     </div>
 
-    <!-- Firebase SDK Scripts -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-        let currentPin = localStorage.getItem('adminPin') || "1234";
-        const MASTER_KEY = "admin123";
-        let globalJobs = {};
-
-        window.checkPin = function() {
-            const inputPin = document.getElementById('adminPin').value;
-            const errorMsg = document.getElementById('pinError');
-            
-            if (inputPin === currentPin) {
-                document.getElementById('authModal').classList.add('hidden');
-                document.getElementById('adminContent').classList.remove('hidden');
-            } else {
-                errorMsg.innerText = "Incorrect PIN!";
-                errorMsg.classList.remove('hidden');
-            }
-        };
-
-        window.toggleChangePinModal = function(show) {
-            const modal = document.getElementById('changePinModal');
-            if (show) modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
-        };
-
-        window.saveNewPin = function() {
-            const oldPinInput = document.getElementById('oldPin').value;
-            const newPinInput = document.getElementById('newPin').value;
-            const err = document.getElementById('changePinError');
-
-            if (oldPinInput !== currentPin) {
-                err.innerText = "Current PIN is wrong!";
-                err.classList.remove('hidden');
-                return;
-            }
-            if (!newPinInput || newPinInput.length < 4) {
-                err.innerText = "New PIN must be at least 4 digits!";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            currentPin = newPinInput;
-            localStorage.setItem('adminPin', newPinInput);
-            alert("PIN changed successfully!");
-            toggleChangePinModal(false);
-            document.getElementById('oldPin').value = '';
-            document.getElementById('newPin').value = '';
-        };
-
-        window.toggleForgotModal = function(show) {
-            const modal = document.getElementById('forgotModal');
-            if (show) modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
-        };
-
-        window.resetPinWithKey = function() {
-            const keyInput = document.getElementById('secretKey').value;
-            const newPinInput = document.getElementById('resetNewPin').value;
-            const err = document.getElementById('forgotError');
-
-            if (keyInput !== MASTER_KEY) {
-                err.innerText = "Invalid Master Key!";
-                err.classList.remove('hidden');
-                return;
-            }
-            if (!newPinInput || newPinInput.length < 4) {
-                err.innerText = "New PIN must be at least 4 digits!";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            currentPin = newPinInput;
-            localStorage.setItem('adminPin', newPinInput);
-            alert("PIN reset successful!");
-            toggleForgotModal(false);
-            document.getElementById('adminPin').value = newPinInput;
-        };
-
+    <!-- JavaScript Logic using Compat SDK -->
+    <script>
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AiZaSyDNuCCC577Pul4Gvn3_fX1m23-9tSmsWSo",
             authDomain: "pakjobsalert-fae89.firebaseapp.com",
@@ -309,41 +140,59 @@
             measurementId: "G-E5C7E37QX2"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        // Save Ads Settings
-        document.getElementById('adForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const adStatusMsg = document.getElementById('adStatusMsg');
+        let currentPin = localStorage.getItem('adminPin') || "1234";
+
+        // Check PIN Function
+        function checkPin() {
+            const inputPin = document.getElementById('adminPin').value;
+            const errorMsg = document.getElementById('pinError');
+            
+            if (inputPin === currentPin) {
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                loadAds();
+                loadJobs();
+            } else {
+                errorMsg.innerText = "Incorrect PIN!";
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        // Load Ads Configuration
+        function loadAds() {
+            database.ref('settings/ads').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const ads = snapshot.val();
+                    document.getElementById('adCode1').value = ads.ad1 || '';
+                    document.getElementById('adCode2').value = ads.ad2 || '';
+                }
+            });
+        }
+
+        // Save Ads Configuration
+        function saveAdsConfig() {
             const ad1 = document.getElementById('adCode1').value;
             const ad2 = document.getElementById('adCode2').value;
+            const msg = document.getElementById('adStatusMsg');
 
-            const adsRef = ref(database, 'settings/ads');
-            set(adsRef, { ad1: ad1, ad2: ad2 })
+            database.ref('settings/ads').set({ ad1, ad2 })
                 .then(() => {
-                    adStatusMsg.className = "text-xs text-center mt-2 font-semibold text-amber-600";
-                    adStatusMsg.innerText = "Ads settings saved successfully!";
-                    adStatusMsg.classList.remove('hidden');
+                    msg.className = "text-xs text-center font-semibold text-emerald-600 mt-2";
+                    msg.innerText = "Ad settings saved successfully!";
+                    msg.classList.remove('hidden');
+                    setTimeout(() => msg.classList.add('hidden'), 3000);
                 })
                 .catch((error) => {
-                    adStatusMsg.className = "text-xs text-center mt-2 font-semibold text-red-600";
-                    adStatusMsg.innerText = "Error: " + error.message;
-                    adStatusMsg.classList.remove('hidden');
+                    msg.className = "text-xs text-center font-semibold text-red-600 mt-2";
+                    msg.innerText = "Error: " + error.message;
+                    msg.classList.remove('hidden');
                 });
-        });
+        }
 
-        // Load existing Ads into inputs
-        const adsRef = ref(database, 'settings/ads');
-        onValue(adsRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const ads = snapshot.val();
-                if(ads.ad1) document.getElementById('adCode1').value = ads.ad1;
-                if(ads.ad2) document.getElementById('adCode2').value = ads.ad2;
-            }
-        });
-
-        // Post Job
+        // Post Job Form Handler
         document.getElementById('jobForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -362,17 +211,67 @@
                 timestamp: Date.now()
             };
 
-            const jobsRef = ref(database, 'jobs');
-            push(jobsRef, newJob)
+            database.ref('jobs').push(newJob)
                 .then(() => {
                     statusMsg.className = "text-xs text-center mt-3 font-semibold text-emerald-600";
                     statusMsg.innerText = "Job successfully published!";
                     statusMsg.classList.remove('hidden');
                     document.getElementById('jobForm').reset();
+                    setTimeout(() => statusMsg.classList.add('hidden'), 3000);
                 })
                 .catch((error) => {
-                    statusMsg.className = "text-xs text-center mt-3 font-semibold text-red-600";
+                    statusMsg.className = "text-xs text-center mt-3 font-364 text-red-600";
                     statusMsg.innerText = "Error: " + error.message;
                     statusMsg.classList.remove('hidden');
                 })
-                .fin
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Publish Job Listing";
+                });
+        });
+
+        // Load Jobs List for Admin Management
+        function loadJobs() {
+            database.ref('jobs').on('value', (snapshot) => {
+                const container = document.getElementById('adminJobsList');
+                container.innerHTML = '';
+
+                if (snapshot.exists()) {
+                    let jobsArray = [];
+                    snapshot.forEach((childSnapshot) => {
+                        jobsArray.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    });
+                    
+                    jobsArray.sort((a, b) => b.timestamp - a.timestamp);
+
+                    jobsArray.zip = function() {};
+                    jobsArray.forEach(job => {
+                        const item = document.createElement('div');
+                        item.className = "flex justify-between items-center bg-gray-50 border p-3 rounded text-sm";
+                        item.innerHTML = `
+                            <div class="pr-2 truncate">
+                                <h4 class="font-bold text-gray-800 text-xs truncate">${job.title}</h4>
+                                <p class="text-[10px] text-gray-500">${job.location} | <span class="text-emerald-600">${job.category}</span></p>
+                            </div>
+                            <button onclick="deleteJob('${job.id}')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded font-semibold shrink-0 transition-colors">
+                                Delete
+                            </button>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">No jobs available to manage.</p>';
+                }
+            });
+        }
+
+        // Delete Job Function
+        function deleteJob(id) {
+            if (confirm("Are you sure you want to delete this job?")) {
+                database.ref('jobs/' + id).remove();
+            }
+        }
+    </script>
+</body>
+</html>
+
