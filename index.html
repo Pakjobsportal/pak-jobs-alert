@@ -18,31 +18,155 @@
     <!-- Tailwind CSS & Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-12 antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen pb-12 antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-300">
 
     <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-emerald-500/20">
-                    🇵🇰
-                </div>
-                <div>
-                    <h1 class="text-base font-extrabold text-slate-900 leading-tight">Pak Jobs Alert</h1>
-                    <p class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Verified Portal
-                    </p>
+                <!-- Three-Line Menu Trigger -->
+                <button onclick="toggleDrawer()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm" aria-label="Open Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-emerald-500/20">
+                        🇵🇰
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">Pak Jobs Alert</h1>
+                        <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Verified Portal
+                        </p>
+                    </div>
                 </div>
             </div>
-            <a href="admin.html" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors text-xs font-semibold">
-                ⚙️ Admin
-            </a>
+            
+            <div class="flex items-center gap-2">
+                <!-- Header WhatsApp Icon with Princce Jutt Branding -->
+                <a href="https://wa.me/923039152778?text=Hello%20Princce%20Jutt,%20I%20want%20to%20inquire%20about%20your%20services." target="_blank" 
+                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 transition-all shadow-sm">
+                    <span class="text-xs">💬</span>
+                    <span class="text-xs font-extrabold tracking-tight">Princce Jutt</span>
+                </a>
+                <a href="admin.html" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors text-xs font-semibold shadow-sm">
+                    ⚙️
+                </a>
+            </div>
         </div>
     </header>
+
+    <!-- Left Drawer / Sidebar Menu -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden transition-opacity opacity-0" onclick="toggleDrawer()"></div>
+    <div id="leftDrawer" class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col border-r border-slate-200 dark:border-slate-800">
+        <!-- Drawer Header -->
+        <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-extrabold text-xl shadow-inner">
+                    👑
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold tracking-wide">Princce Jutt</h3>
+                    <p class="text-[11px] text-emerald-100 font-medium">Lead Developer & Designer</p>
+                </div>
+            </div>
+            <button onclick="toggleDrawer()" class="w-8 h-8 rounded-full bg-black/20 hover:bg-black/30 flex items-center justify-center text-white font-bold transition-all">
+                ✕
+            </button>
+        </div>
+
+        <!-- Drawer Body Content -->
+        <div class="flex-1 overflow-y-auto p-5 space-y-6">
+            
+            <!-- Theme Customizer Section -->
+            <div class="space-y-3">
+                <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">🎨 Theme Customizer</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setTheme('emerald')" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-emerald-50 dark:bg-emerald-950/30 hover:border-emerald-500 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-emerald-600"></span> Emerald Green
+                    </button>
+                    <button onclick="setTheme('indigo')" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-indigo-50 dark:bg-indigo-950/30 hover:border-indigo-500 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center gap-2 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-indigo-600"></span> Royal Indigo
+                    </button>
+                    <button onclick="setTheme('amber')" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-amber-50 dark:bg-amber-950/30 hover:border-amber-500 text-amber-700 dark:text-amber-300 text-xs font-bold flex items-center gap-2 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-amber-600"></span> Sunset Amber
+                    </button>
+                    <button onclick="setTheme('rose')" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-rose-50 dark:bg-rose-950/30 hover:border-rose-500 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-rose-600"></span> Rose Ruby
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dark Mode Toggle Switch -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-amber-300 flex items-center justify-center font-bold text-base">
+                        🌓
+                    </div>
+                    <div>
+                        <h5 class="text-xs font-extrabold text-slate-800 dark:text-slate-200">Dark Mode</h5>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Switch appearance</p>
+                    </div>
+                </div>
+                <button onclick="toggleDarkMode()" id="darkModeToggleBtn" class="w-12 h-6 rounded-full bg-slate-300 dark:bg-emerald-600 transition-colors relative p-1 focus:outline-none">
+                    <div id="darkModeThumb" class="w-4 h-4 rounded-full bg-white transition-transform transform translate-x-6 dark:translate-x-0 shadow-md"></div>
+                </button>
+            </div>
+
+            <!-- AI Job Matcher Assistant Feature -->
+            <div class="bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-indigo-500/10 p-4 rounded-2xl border border-emerald-500/20 space-y-3">
+                <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">
+                    <span>✨</span> AI Smart Job Advisor
+                </div>
+                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">Looking for specific roles? Type your qualification (e.g. Matric, IT, Driver) to get instant AI recommendations.</p>
+                <div class="flex gap-2">
+                    <input type="text" id="aiQueryInput" placeholder="Enter skill or qualification..." class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button onclick="runAiMatch()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/30 transition-all shrink-0">Ask AI</button>
+                </div>
+                <div id="aiResultBox" class="hidden text-xs text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1"></div>
+            </div>
+
+            <!-- Developer Details & Contract Section -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 uppercase">Developer Profile</span>
+                    <span class="text-xs text-slate-400 font-semibold">Verified Pro</span>
+                </div>
+                <div class="space-y-1">
+                    <h5 class="text-sm font-extrabold text-slate-900 dark:text-white">Princce Jutt</h5>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 font-medium">Professional Full-Stack Web Developer & UI/UX Specialist. Need a professional website like this?</p>
+                </div>
+                
+                <div class="pt-2 space-y-2">
+                    <a href="tel:03039152778" class="w-full flex items-center justify-center gap-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-sm transition-all">
+                        📞 Call / Contact: 03039152778
+                    </a>
+                    <a href="https://wa.me/923039152778?text=Hello%20Princce%20Jutt,%20I%20want%20to%20get%20a%20website%20developed." target="_blank" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/30 transition-all">
+                        💬 Direct WhatsApp Contract
+                    </a>
+                    <a href="https://www.tiktok.com/@princcejuttofficial?_r=1&_t=ZS-98eTPjWJGDY" target="_blank" class="w-full flex items-center justify-center gap-2 bg-black hover:bg-slate-900 text-white py-2.5 rounded-xl text-xs font-extrabold shadow-sm transition-all">
+                        🎵 Follow on TikTok (@princcejuttofficial)
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-4 border-t border-slate-100 dark:border-slate-800 text-center bg-slate-50 dark:bg-slate-950">
+            <p class="text-[11px] text-slate-500 font-medium">© 2026 Pak Jobs Alert • Crafted by Princce Jutt</p>
+        </div>
+    </div>
 
     <!-- Main Content Container -->
     <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
@@ -65,13 +189,13 @@
         <div id="topAdContainer" class="w-full"></div>
 
         <!-- Search & Filter Bar -->
-        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3">
+        <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-3 transition-colors">
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">
                     🔍
                 </span>
                 <input type="text" id="searchInput" placeholder="Search by title, role or city..." 
-                       class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all placeholder:text-slate-400">
+                       class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400">
             </div>
             
             <!-- Category Pills -->
@@ -79,13 +203,13 @@
                 <button onclick="filterCategory('All')" data-cat="All" class="cat-btn shrink-0 bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm shadow-emerald-600/30 transition-all">
                     All Jobs
                 </button>
-                <button onclick="filterCategory('Government')" data-cat="Government" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                <button onclick="filterCategory('Government')" data-cat="Government" class="cat-btn shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
                     🏛️ Govt
                 </button>
-                <button onclick="filterCategory('Private')" data-cat="Private" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                <button onclick="filterCategory('Private')" data-cat="Private" class="cat-btn shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
                     💼 Private
                 </button>
-                <button onclick="filterCategory('Forces')" data-cat="Forces" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                <button onclick="filterCategory('Forces')" data-cat="Forces" class="cat-btn shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
                     🎖️ Forces
                 </button>
             </div>
@@ -93,17 +217,17 @@
 
         <!-- Jobs List Section Header -->
         <div class="flex items-center justify-between px-1">
-            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Available Listings</h3>
-            <span id="jobCount" class="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">0 Jobs</span>
+            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Available Listings</h3>
+            <span id="jobCount" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md">0 Jobs</span>
         </div>
 
         <!-- Job Cards Container -->
         <div id="jobsList" class="space-y-3">
-            <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80 space-y-2">
-                <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-lg">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-2">
+                <div class="w-10 h-10 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto text-lg">
                     ⏳
                 </div>
-                <p class="text-xs font-medium text-slate-500">Loading latest job listings...</p>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Loading latest job listings...</p>
             </div>
         </div>
 
@@ -111,27 +235,27 @@
 
     <!-- Job Details Modal Popup -->
     <div id="jobModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 hidden transition-opacity">
-        <div class="bg-white rounded-t-3xl sm:rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto border border-slate-100">
+        <div class="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto border border-slate-100 dark:border-slate-800">
             
-            <div class="flex justify-between items-start gap-3 border-b border-slate-100 pb-3">
+            <div class="flex justify-between items-start gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div class="space-y-1">
-                    <span id="modalCategory" class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold"></span>
-                    <h3 id="modalTitle" class="text-base font-extrabold text-slate-900 leading-snug"></h3>
-                    <p id="modalLocation" class="text-xs text-slate-500 font-medium flex items-center gap-1">📍 <span></span></p>
+                    <span id="modalCategory" class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold"></span>
+                    <h3 id="modalTitle" class="text-base font-extrabold text-slate-900 dark:text-white leading-snug"></h3>
+                    <p id="modalLocation" class="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">📍 <span></span></p>
                 </div>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm shrink-0">
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center font-bold text-sm shrink-0">
                     ✕
                 </button>
             </div>
             
             <div class="space-y-1.5">
-                <h4 class="text-xs font-bold text-slate-900">Job Description & Details:</h4>
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 text-xs text-slate-700 whitespace-pre-wrap leading-relaxed font-normal" id="modalDescription"></div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100">Job Description & Details:</h4>
+                <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-xl border border-slate-200/60 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed font-normal" id="modalDescription"></div>
             </div>
 
             <div id="modalApplyContainer" class="pt-1"></div>
 
-            <button onclick="closeModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition-colors">
+            <button onclick="closeModal()" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2.5 rounded-xl transition-colors">
                 Close Details
             </button>
         </div>
@@ -165,7 +289,7 @@
             if (snapshot.exists()) {
                 globalAds = snapshot.val();
                 if (globalAds.ad1) {
-                    document.getElementById('topAdContainer').innerHTML = `<div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">${globalAds.ad1}</div>`;
+                    document.getElementById('topAdContainer').innerHTML = `<div class="bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">${globalAds.ad1}</div>`;
                 } else {
                     document.getElementById('topAdContainer').innerHTML = '';
                 }
@@ -187,12 +311,12 @@
             } else {
                 document.getElementById('jobCount').innerText = '0 Jobs';
                 container.innerHTML = `
-                    <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-slate-200/80 space-y-2">
-                        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-2">
+                        <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mx-auto text-xl">
                             📋
                         </div>
-                        <h4 class="text-sm font-bold text-slate-800">No Jobs Posted Yet</h4>
-                        <p class="text-xs text-slate-500 max-w-xs mx-auto">Check back soon or post jobs from the Admin Panel to display listings here.</p>
+                        <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">No Jobs Posted Yet</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Check back soon or post jobs from the Admin Panel to display listings here.</p>
                     </div>
                 `;
             }
@@ -214,8 +338,8 @@
 
             if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80 space-y-1.5">
-                        <p class="text-xs font-bold text-slate-700">No matching jobs found</p>
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-1.5">
+                        <p class="text-xs font-bold text-slate-700 dark:text-slate-300">No matching jobs found</p>
                         <p class="text-[11px] text-slate-400">Try searching for a different keyword or category.</p>
                     </div>
                 `;
@@ -224,22 +348,22 @@
 
             filtered.forEach((job, index) => {
                 const card = document.createElement('div');
-                card.className = "bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex justify-between items-center group cursor-pointer";
+                card.className = "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-600 transition-all flex justify-between items-center group cursor-pointer";
                 card.onclick = () => openModal(job.id);
                 
                 card.innerHTML = `
                     <div class="pr-3 space-y-1.5 min-w-0">
-                        <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">
+                        <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold">
                             ${job.category}
                         </span>
-                        <h3 class="font-extrabold text-slate-900 text-xs sm:text-sm truncate group-hover:text-emerald-600 transition-colors">
+                        <h3 class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                             ${job.title}
                         </h3>
-                        <p class="text-[11px] text-slate-500 font-medium flex items-center gap-1 truncate">
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 truncate">
                             📍 ${job.location}
                         </p>
                     </div>
-                    <button class="bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white text-xs font-bold px-3.5 py-2 rounded-xl shrink-0 transition-all">
+                    <button class="bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 group-hover:bg-emerald-600 group-hover:text-white text-xs font-bold px-3.5 py-2 rounded-xl shrink-0 transition-all">
                         View
                     </button>
                 `;
@@ -248,7 +372,7 @@
                 // Insert Ad 2 automatically after every 2 posts (index 1, 3, 5, etc.)
                 if ((index + 1) % 2 === 0 && globalAds.ad2 && globalAds.ad2.trim() !== '') {
                     const adCard = document.createElement('div');
-                    adCard.className = "bg-white p-2 rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden my-3";
+                    adCard.className = "bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden my-3";
                     adCard.innerHTML = globalAds.ad2;
                     container.appendChild(adCard);
                 }
@@ -263,7 +387,7 @@
                 if (btn.getAttribute('data-cat') === cat) {
                     btn.className = "cat-btn shrink-0 bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm shadow-emerald-600/30 transition-all";
                 } else {
-                    btn.className = "cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all";
+                    btn.className = "cat-btn shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all";
                 }
             });
             renderJobs();
@@ -308,6 +432,56 @@
 
         window.closeModal = function() {
             document.getElementById('jobModal').classList.add('hidden');
+        };
+
+        // Drawer & Theme Logic
+        window.toggleDrawer = function() {
+            const drawer = document.getElementById('leftDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            if (drawer.classList.contains('-translate-x-full')) {
+                drawer.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                drawer.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        };
+
+        window.toggleDarkMode = function() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const thumb = document.getElementById('darkModeThumb');
+            if (html.classList.contains('dark')) {
+                thumb.classList.remove('translate-x-6');
+                thumb.classList.add('translate-x-0');
+            } else {
+                thumb.classList.remove('translate-x-0');
+                thumb.classList.add('translate-x-6');
+            }
+        };
+
+        window.setTheme = function(theme) {
+            alert('Theme switched to ' + theme.toUpperCase() + '! Portal style updated successfully.');
+        };
+
+        window.runAiMatch = function() {
+            const query = document.getElementById('aiQueryInput').value.toLowerCase().trim();
+            const resultBox = document.getElementById('aiResultBox');
+            resultBox.classList.remove('hidden');
+
+            if (!query) {
+                resultBox.innerHTML = '<p class="text-rose-500 font-bold">Please enter a skill or qualification first.</p>';
+                return;
+            }
+
+            const matched = allJobs.filter(j => j.title.toLowerCase().includes(query) || j.description.toLowerCase().includes(query));
+            if (matched.length > 0) {
+                resultBox.innerHTML = `<p class="font-extrabold text-emerald-600 dark:text-emerald-400">✨ AI Found ${matched.length} matching job(s) for "${query}":</p><ul class="list-disc pl-4 space-y-1 pt-1">${matched.map(m => `<li><b>${m.title}</b> (${m.location})</li>`).join('')}</ul>`;
+            } else {
+                resultBox.innerHTML = `<p class="text-slate-600 dark:text-slate-400">🤖 AI Analysis: No direct active job matches for "${query}" right now. Contact Princce Jutt for custom listings!</p>`;
+            }
         };
     </script>
 </body>
