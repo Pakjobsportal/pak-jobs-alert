@@ -76,16 +76,16 @@
             
             <!-- Category Pills -->
             <div class="flex gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
-                <button onclick="filterCategory('All')" class="cat-btn shrink-0 bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm shadow-emerald-600/30 transition-all">
+                <button onclick="filterCategory('All')" data-cat="All" class="cat-btn shrink-0 bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm shadow-emerald-600/30 transition-all">
                     All Jobs
                 </button>
-                <button onclick="filterCategory('Government')" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                <button onclick="filterCategory('Government')" data-cat="Government" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
                     🏛️ Govt
                 </button>
-                <button onclick="filterCategory('Private')" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                <button onclick="filterCategory('Private')" data-cat="Private" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
                     💼 Private
                 </button>
-                <button onclick="filterCategory('Forces')" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                <button onclick="filterCategory('Forces')" data-cat="Forces" class="cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all">
                     🎖️ Forces
                 </button>
             </div>
@@ -260,7 +260,7 @@
         window.filterCategory = function(cat) {
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                if (btn.innerText.includes(cat) || (cat === 'All' && btn.innerText.includes('All'))) {
+                if (btn.getAttribute('data-cat') === cat) {
                     btn.className = "cat-btn shrink-0 bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm shadow-emerald-600/30 transition-all";
                 } else {
                     btn.className = "cat-btn shrink-0 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all";
